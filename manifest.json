@@ -1,0 +1,32 @@
+{
+    "name": "Trivia Helper",
+    "description": "Facilita a jogabilidade das trivias",
+    "version": "1.0",
+    "permissions": [
+        "activeTab",
+        "https://rachacuca.com.br/trivia/*"
+    ],
+    "browser_action": {
+        "default_title": "Trivia Helper",
+        "default_icon": "./assets/img/icon.png",
+        //"default_popup": "main.html"
+    },
+    "icons": {
+        "128": "./assets/img/icon.png"
+    },
+    "background": {
+        "scripts": ["background.js"],
+        "persistent": false
+    },
+    "content_scripts": [{
+        "matches": ["https://rachacuca.com.br/trivia/*"],
+        "js": ["module_loader.js"]
+    }],
+    "web_accessible_resources": [
+        "page_script.js"
+    ],
+    "externally_connectable": {
+        "matches": ["https://rachacuca.com.br/trivia/*"]
+    },
+    "manifest_version": 2
+}

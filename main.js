@@ -11,6 +11,7 @@ function getJSON(){
 }
 getJSON();
 
+// retorna dados acerca de uma resposta baixada com base no seu ID
 export function getAnswerInfo(answerID){
 	if(!data)
 		throw new Error('Dados não baixados');

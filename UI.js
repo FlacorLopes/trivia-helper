@@ -1,3 +1,16 @@
+import {getAnswerInfo} from './main.js';
+
+// adiciona um loader e uma div antes do carregamento das respostas
+const loader = document.createElement('div');
+loader.setAttribute('class', 'loader');
+
+const waitingDataDiv = document.createElement('div');
+waitingDataDiv.setAttribute('id', 'waiting-data-div');
+waitingDataDiv.appendChild(loader);
+
+document.body.appendChild(waitingDataDiv);
+
+
 // span utilizada para mostrar dados da resposta oculta (tamanho etc)
 // ao passar mouse sobre elas
 
@@ -15,6 +28,23 @@ function displayAnswersInfoSpan(answerOwnerElement) {
     if (!answerInfoOnScreen) {
         answerInfoSpan.style.display = 'block';
         answerInfoOnScreen = true;
+
+        const ID = answerOwnerElement.firstElementChild.getAttribute('id').replace('resposta-', '');
+
+        try {
+        	const info = getAnswerInfo(ID);
+        	if(info.wordCount == 1)
+        		answerInfoSpan.innerText = info.words[0].length + ' letras';
+        	else {
+        		answerInfoSpan.innerText = `resposta composta\n${info.wordCount} palavras\n`;
+        	}
+        }
+        catch(err){
+        	answerInfoSpan.innerText = 'Houve um erro ao calcular valor da resposta<br />' + err.message;
+
+        }
+
+
     } else setTimeout(hideAnswersInfoSpan, 500);
 
 };
@@ -39,10 +69,15 @@ function getAnswersElementsList() {
     return answersElements;
 }
 
+// eventos mouse sobre as respostas
 getAnswersElementsList().forEach((el) => {
-    el.parentElement.addEventListener('mouseover', () => displayAnswersInfoSpan(el));
+    el.parentElement.addEventListener('mouseenter', () => {
+    	displayAnswersInfoSpan(el);
+    });
     el.parentElement.addEventListener('mouseout', () => hideAnswersInfoSpan(el));
 });
+
+
 
 // span utilizada para exibir dados digitados no input de resposta
 //(tamanho das palavras digitadas etc)
@@ -50,7 +85,7 @@ const typingInfoSpan = document.createElement('span');
 typingInfoSpan.setAttribute('id', 'typing-info-span');
 typingInfoSpan.style.display = 'none';
 
-// localiza a div que contem o input e o adiciona antes dele
+// localiza a div que contem o input e adiciona a span antes dele
 const typingInfoDiv = document.getElementById('respostas').firstElementChild;
 typingInfoDiv.insertBefore(typingInfoSpan, typingInfoDiv.childNodes[0]);
 
@@ -91,4 +126,7 @@ formInput.addEventListener('keyup', displayTypingWordsInfo);
 
 console.log('UI CARREGADADA')
 
-export default displayTypingWordsInfo;
+export default function disableWaiting(){
+	waitingDataDiv.style.display = 'none';
+	console.log('Disabling div')
+}

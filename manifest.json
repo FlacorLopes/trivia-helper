@@ -8,7 +8,7 @@
     ],
     "browser_action": {
         "default_title": "Trivia Helper",
-        "default_icon": "./assets/img/icon.png",
+        "default_icon": "./assets/img/icon.png"
         //"default_popup": "main.html"
     },
     "icons": {
@@ -20,10 +20,11 @@
     },
     "content_scripts": [{
         "matches": ["https://rachacuca.com.br/trivia/*"],
-        "js": ["module_loader.js"]
+        "js": ["module_loader.js"],
+        "css": ["./assets/css/trivia-helper.css"]
     }],
     "web_accessible_resources": [
-        "page_script.js"
+        "main.js", "UI.js"
     ],
     "externally_connectable": {
         "matches": ["https://rachacuca.com.br/trivia/*"]

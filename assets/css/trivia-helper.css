@@ -1,0 +1,31 @@
+#answer-info-span {
+	position: fixed;
+	right: 10px;
+	bottom: 50vh;
+	width: auto;
+	height: auto;
+	background-color: #0394fc;
+	z-index: 100;
+	box-shadow: 10px 5px 10px grey;
+	padding: 10px;
+	font-size: 15pt;
+	font-weight: bold;
+	font-family: Helvetica;
+	color: white;
+	text-align: center;
+	display: none;
+}
+
+#typing-info-span {
+	position: sticky;
+	width: auto;
+	height: 10px;
+	margin-bottom: 10px;
+	z-index: 100;
+	font-size: 12pt;
+	font-weight: bold;
+	font-family: 'Helvetica';
+	color: #0394fc;
+	text-align: center;
+	display: none;
+}

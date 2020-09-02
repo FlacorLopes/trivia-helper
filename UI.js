@@ -1,7 +1,8 @@
 import {
     getAnswerInfo,
     compareSpecialChars,
-    checkWordIsAnAnser
+    checkWordIsAnAnser,
+    getAnswerId
 } from './main.js';
 
 // adiciona um loader e uma div antes do carregamento das respostas
@@ -131,19 +132,16 @@ function displayTypingWordsInfo() {
 }
 
 let lastTyped = '';
-formInput.addEventListener('keyup', ({target}) => {
+formInput.addEventListener('keyup', ({
+    target
+}) => {
     displayTypingWordsInfo();
     forceLowerCaseInput();
     changeInputColorWhenAnswered(target.value);
     lastTyped = target.value.trim() == '' ? lastTyped : target.value.trim();
     controlElementsMarking(target.value)
-
-    console.log(checkWordIsAnAnser(lastTyped));
+    scrollToElementOnAnswer(lastTyped);
 });
-
-setInterval(() => console.log(lastTyped), 1000);
-//formInput.addEventListener('keydown', () => lastTyped = '');
-
 
 function forceLowerCaseInput() {
     formInput.value = formInput.value.toLowerCase();
@@ -155,7 +153,7 @@ function checkWordIsAnswered(word) {
     let answered = false;
     if (answers)
         answers.forEach((answer) => {
-            if(compareSpecialChars(answer, word))
+            if (compareSpecialChars(answer, word))
                 answered = true;
         });
     return answered;
@@ -189,7 +187,7 @@ function getAnsweredList() {
     return list;
 }
 
-function getElementsStartingWith(letter){
+function getElementsStartingWith(letter) {
     const elements = getAnswersElementsList().filter((element) => {
         return element.firstChild.innerText.startsWith(letter);
     });
@@ -197,24 +195,23 @@ function getElementsStartingWith(letter){
     return elements;
 }
 
-function markElementsStartingWith(letter){
+function markElementsStartingWith(letter) {
     const elements = getElementsStartingWith(letter);
     elements.forEach((element) => element.style.backgroundColor = '#fb1');
 }
 
-function unmarkElementsStartingWith(letter){
+function unmarkElementsStartingWith(letter) {
     const elements = getElementsStartingWith(letter);
     elements.forEach((element) => element.style.backgroundColor = 'initial');
-    console.log('desmarcando com a letra ' + letter)
 }
 
 // controla o realce do grupo de repostas com a letra
 // digitada
 let markedLetter = '';
-function controlElementsMarking(inputValue){
 
-    if(checkWordIsAnAnser(lastTyped) || inputValue.length == 0)
-    {
+function controlElementsMarking(inputValue) {
+
+    if (checkWordIsAnAnser(lastTyped) || inputValue.length == 0) {
         unmarkElementsStartingWith(markedLetter);
         markedLetter = '';
         return
@@ -225,8 +222,7 @@ function controlElementsMarking(inputValue){
             automártico do racha cuca, desmarca a seleção
         */
     }
-    if(inputValue.length != 0 && markedLetter != inputValue[0])
-    {   
+    if (inputValue.length != 0 && markedLetter != inputValue[0]) {
         unmarkElementsStartingWith(markedLetter);
         markElementsStartingWith(inputValue[0]);
         markedLetter = inputValue[0];
@@ -236,9 +232,20 @@ function controlElementsMarking(inputValue){
             e for uma palavra com letra diferente de uma já selecionada
         */
     }
-    
+
 }
 
+// chamada no keyup pra scrollar até a resposta inserida
+// todo: melhorar o scroll, nem sempre pega o elemento bem
+function scrollToElementOnAnswer(answer) {
+    let id = getAnswerId(answer);
+
+    if(id){
+        let td = document.getElementById('resposta-' + id).parentElement;
+        td.scrollIntoView({block: 'center'});
+        console.log('scrolled to', td);
+    }
+}
 
 console.log('UI CARREGADADA', getElementsStartingWith('c'));
 

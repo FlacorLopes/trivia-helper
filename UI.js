@@ -1,5 +1,7 @@
 import {
-    getAnswerInfo
+    getAnswerInfo,
+    compareSpecialChars,
+    checkWordIsAnAnser
 } from './main.js';
 
 // adiciona um loader e uma div antes do carregamento das respostas
@@ -128,11 +130,19 @@ function displayTypingWordsInfo() {
     } else typingInfoSpan.innerText = typed.length + ' letras';
 }
 
+let lastTyped = '';
 formInput.addEventListener('keyup', ({target}) => {
     displayTypingWordsInfo();
     forceLowerCaseInput();
     changeInputColorWhenAnswered(target.value);
+    lastTyped = target.value.trim() == '' ? lastTyped : target.value.trim();
+    controlElementsMarking(target.value)
+
+    console.log(checkWordIsAnAnser(lastTyped));
 });
+
+setInterval(() => console.log(lastTyped), 1000);
+//formInput.addEventListener('keydown', () => lastTyped = '');
 
 
 function forceLowerCaseInput() {
@@ -164,51 +174,7 @@ function setInputColor(color) {
     formInput.style.color = color;
 }
 
-// usada para comparação ignorando caracteres especiais do português;
-function compareSpecialChars(str1, str2) {
-    let specialChars = /[ãâáàâéêíóõôúç]/i;
 
-    str1 = str1.toLowerCase();
-    str2 = str2.toLowerCase();
-
-    // console.log('comparing...', str1, str2);
-
-    if (specialChars.test(str1)) {
-        str1 = str1.replace('ã', 'a');
-        str1 = str1.replace('á', 'a');
-        str1 = str1.replace('à', 'a');
-        str1 = str1.replace('â', 'a');
-
-        str1 = str1.replace('é', 'e');
-        str1 = str1.replace('ê', 'e');
-        str1 = str1.replace('í', 'i');
-        str1 = str1.replace('õ', 'o');
-        str1 = str1.replace('ó', 'o');
-        str1 = str1.replace('ô', 'o');
-        str1 = str1.replace('ú', 'u');
-
-        str1 = str1.replace('ç', 'c');
-
-    }
-    if (specialChars.test(str2)) {
-        str2 = str2.replace('ã', 'a');
-        str2 = str2.replace('á', 'a');
-        str2 = str2.replace('à', 'a');
-        str2 = str2.replace('â', 'a');
-
-        str2 = str2.replace('é', 'e');
-        str2 = str2.replace('ê', 'e');
-        str2 = str2.replace('í', 'i');
-        str2 = str2.replace('õ', 'o');
-        str2 = str2.replace('ó', 'o');
-        str2 = str2.replace('ô', 'o');
-        str2 = str2.replace('ú', 'u');
-
-        str2 = str2.replace('ç', 'c');
-    }
-
-    return str1 === str2;
-}
 
 // retorna um array com as respostas atuais obtidas dos elementos
 // marcados com a classe 'resposta'
@@ -223,7 +189,58 @@ function getAnsweredList() {
     return list;
 }
 
-console.log('UI CARREGADADA')
+function getElementsStartingWith(letter){
+    const elements = getAnswersElementsList().filter((element) => {
+        return element.firstChild.innerText.startsWith(letter);
+    });
+
+    return elements;
+}
+
+function markElementsStartingWith(letter){
+    const elements = getElementsStartingWith(letter);
+    elements.forEach((element) => element.style.backgroundColor = '#fb1');
+}
+
+function unmarkElementsStartingWith(letter){
+    const elements = getElementsStartingWith(letter);
+    elements.forEach((element) => element.style.backgroundColor = 'initial');
+    console.log('desmarcando com a letra ' + letter)
+}
+
+// controla o realce do grupo de repostas com a letra
+// digitada
+let markedLetter = '';
+function controlElementsMarking(inputValue){
+
+    if(checkWordIsAnAnser(lastTyped) || inputValue.length == 0)
+    {
+        unmarkElementsStartingWith(markedLetter);
+        markedLetter = '';
+        return
+
+        /* 
+            se o valor digitado for uma resposta válida
+            ou o campo estiver em branco, devido ao apagamento
+            automártico do racha cuca, desmarca a seleção
+        */
+    }
+    if(inputValue.length != 0 && markedLetter != inputValue[0])
+    {   
+        unmarkElementsStartingWith(markedLetter);
+        markElementsStartingWith(inputValue[0]);
+        markedLetter = inputValue[0];
+
+        /* 
+            marca a seleção se o input estiver preenchido e
+            e for uma palavra com letra diferente de uma já selecionada
+        */
+    }
+    
+}
+
+
+console.log('UI CARREGADADA', getElementsStartingWith('c'));
 
 // usada para remover o loader e a div modal
 export default function disableWaiting() {

@@ -197,12 +197,12 @@ function getElementsStartingWith(letter) {
 
 function markElementsStartingWith(letter) {
     const elements = getElementsStartingWith(letter);
-    elements.forEach((element) => element.style.backgroundColor = '#fb1');
+    elements.forEach((element) => element.classList.add('marked'));
 }
 
 function unmarkElementsStartingWith(letter) {
     const elements = getElementsStartingWith(letter);
-    elements.forEach((element) => element.style.backgroundColor = 'initial');
+    elements.forEach((element) => element.classList.remove('marked'));
 }
 
 // controla o realce do grupo de repostas com a letra

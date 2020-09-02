@@ -62,3 +62,11 @@
 		transform: rotate(360deg);
 	}
 }
+
+.marked {
+	background-color: #fb1 !important;
+}
+
+.marked span {
+	font-size: 14pt;
+}

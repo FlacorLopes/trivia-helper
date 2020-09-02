@@ -9,6 +9,8 @@ function getJSON(){
 		disableWaiting();
 		console.log(data);
 	});
+	if(!id)
+		disableWaiting();
 }
 getJSON();
 

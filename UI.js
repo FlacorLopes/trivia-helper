@@ -7,8 +7,6 @@ import {
     
 } from './main.js';
 
-isPlayableTrivia()
-
 // ===== elementos globais da UI ==================== 
 
 // elementos usados no loader exibido antes de baixar as respostas

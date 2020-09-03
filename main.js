@@ -3,10 +3,6 @@ import disableWaiting from './UI.js';
 let id = location.pathname.split('/')[2];
 let data = undefined;
 
-export function isPlayableTrivia(){
-	console.log('chamou main')
-}
-
 
 function getJSON(){
 	$.getJSON(`https://rachacuca.com.br/trivia/data/${id}/`, (json) => {

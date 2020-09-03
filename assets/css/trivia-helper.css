@@ -64,9 +64,12 @@
 }
 
 .marked {
-	background-color: #fb1 !important;
+	background-color: #0394fc !important;
+	box-shadow: 0px 0px 10px grey;
 }
 
 .marked span {
 	font-size: 14pt;
+	color: white;
+	font-weight: bold;
 }

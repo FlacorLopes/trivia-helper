@@ -2,37 +2,74 @@ import {
     getAnswerInfo,
     compareSpecialChars,
     checkWordIsAnAnser,
-    getAnswerId
+    getAnswerId,
+    isPlayableTrivia
+    
 } from './main.js';
 
-// adiciona um loader e uma div antes do carregamento das respostas
-const loader = document.createElement('div');
-loader.setAttribute('class', 'loader');
+isPlayableTrivia()
 
+// ===== elementos globais da UI ==================== 
+
+// elementos usados no loader exibido antes de baixar as respostas
 const waitingDataDiv = document.createElement('div');
-waitingDataDiv.setAttribute('id', 'waiting-data-div');
-waitingDataDiv.appendChild(loader);
+const loader = document.createElement('div');
 
-document.body.appendChild(waitingDataDiv);
-
-
-// span utilizada para mostrar dados da resposta oculta (tamanho etc)
-// ao passar mouse sobre elas
-
+// exibe dados sobre as respostas ao passar mouse sobre elas
 const answerInfoSpan = document.createElement('span');
-answerInfoSpan.innerText = 'TESTE';
-answerInfoSpan.setAttribute('id', 'answer-info-span');
 
-document.body.appendChild(answerInfoSpan);
+// span utilizada para exibir dados digitados no input de resposta 
+const typingInfoSpan = document.createElement('span');
 
+// input de respostas
+const formInput = document.getElementById('resposta');
 
-let answerInfoOnScreen = false;
+// configura e exibe o loader
+function setUpLoader() {
+    formInput.disabled = true;
+    loader.setAttribute('class', 'loader');
+    waitingDataDiv.setAttribute('id', 'waiting-data-div');
+    waitingDataDiv.appendChild(loader);
+    document.body.appendChild(waitingDataDiv);
+
+    
+}
+
+// usada para remover o loader e a div modal
+export default function disableWaiting() {
+    waitingDataDiv.style.display = 'none';
+    formInput.disabled = false;
+}
+
+// configura e exibe as spans de informações 
+function setUpInfoSpans() {
+    answerInfoSpan.innerText = '';
+    answerInfoSpan.setAttribute('id', 'answer-info-span');
+    document.body.appendChild(answerInfoSpan);
+
+    typingInfoSpan.setAttribute('id', 'typing-info-span');
+    typingInfoSpan.style.display = 'none';
+
+    // localiza a div que contem o input e adiciona a span antes dele
+    const typingInfoDiv = document.getElementById('respostas').firstElementChild;
+    typingInfoDiv.insertBefore(typingInfoSpan, typingInfoDiv.childNodes[0]);
+}
+
+setUpLoader();
+setUpInfoSpans();
+
+// == Variáveis globais de digitação ============================
+
+// armazena o ultimo valor digitado no input (o jogo limpa abruptamente o input ao acertar)
+let lastTypedValue = '';
+
+// inicial dos elementos de mesma letra selecionados
+let markedLetter = '';
 
 // alterna a exibição da span 
 function displayAnswersInfoSpan(answerOwnerElement) {
-    if (!answerInfoOnScreen) {
+    if (answerInfoSpan.style.display !== 'block') {
         answerInfoSpan.style.display = 'block';
-        answerInfoOnScreen = true;
 
         // obtém o ID da resposta de acordo ao id da célula na página
         const ID = answerOwnerElement.firstElementChild.getAttribute('id').replace('resposta-', '');
@@ -60,7 +97,6 @@ function displayAnswersInfoSpan(answerOwnerElement) {
 
 function hideAnswersInfoSpan() {
     answerInfoSpan.style.display = 'none';
-    answerInfoOnScreen = false;
 }
 
 // obtém uma referência à lista de celulas de respostas ocultas
@@ -78,30 +114,19 @@ function getAnswersElementsList() {
     return answersElements;
 }
 
-// eventos mouse sobre as respostas
-getAnswersElementsList().forEach((el) => {
-    el.parentElement.addEventListener('mouseover', () => {
-        displayAnswersInfoSpan(el);
+function addMouseEvents() {
+    // eventos mouse sobre as respostas
+    getAnswersElementsList().forEach((el) => {
+        el.parentElement.addEventListener('mouseover', () => {
+            displayAnswersInfoSpan(el);
+        });
+        el.parentElement.addEventListener('mouseout', () => hideAnswersInfoSpan(el));
     });
-    el.parentElement.addEventListener('mouseout', () => hideAnswersInfoSpan(el));
-});
+}
 
+addMouseEvents();
 
-
-// span utilizada para exibir dados digitados no input de resposta
-//(tamanho das palavras digitadas etc)
-const typingInfoSpan = document.createElement('span');
-typingInfoSpan.setAttribute('id', 'typing-info-span');
-typingInfoSpan.style.display = 'none';
-
-// localiza a div que contem o input e adiciona a span antes dele
-const typingInfoDiv = document.getElementById('respostas').firstElementChild;
-typingInfoDiv.insertBefore(typingInfoSpan, typingInfoDiv.childNodes[0]);
-
-// input de respostas
-const formInput = document.getElementById('resposta');
-
-// chamada no keyup do forminput para exibir dados da palavra digitada
+// chamada no keyup do formInput para exibir dados da palavra digitada
 function displayTypingWordsInfo() {
     // deixa visível a span
     typingInfoSpan.style.display = 'block';
@@ -131,17 +156,20 @@ function displayTypingWordsInfo() {
     } else typingInfoSpan.innerText = typed.length + ' letras';
 }
 
-let lastTyped = '';
-formInput.addEventListener('keyup', ({
-    target
-}) => {
-    displayTypingWordsInfo();
-    forceLowerCaseInput();
-    changeInputColorWhenAnswered(target.value);
-    lastTyped = target.value.trim() == '' ? lastTyped : target.value.trim();
-    controlElementsMarking(target.value)
-    scrollToElementOnAnswer(lastTyped);
-});
+function addTypingEvents() {
+    formInput.addEventListener('keyup', ({
+        target
+    }) => {
+        displayTypingWordsInfo();
+        forceLowerCaseInput();
+        changeInputColorWhenAnswered(target.value);
+        lastTypedValue = target.value.trim() == '' ? lastTypedValue : target.value.trim();
+        controlElementsMarking(target.value)
+        scrollToElementOnAnswer(lastTypedValue);
+    });
+}
+
+addTypingEvents();
 
 function forceLowerCaseInput() {
     formInput.value = formInput.value.toLowerCase();
@@ -159,7 +187,7 @@ function checkWordIsAnswered(word) {
     return answered;
 }
 
-// usada no keyup do forminput pra alterar sua cor quando já respondida
+// usada no keyup do formInput pra alterar sua cor quando já respondida
 function changeInputColorWhenAnswered(word) {
     if (checkWordIsAnswered(word))
         setInputColor('red');
@@ -171,7 +199,6 @@ function setInputColor(color) {
     formInput.style.borderColor = color;
     formInput.style.color = color;
 }
-
 
 
 // retorna um array com as respostas atuais obtidas dos elementos
@@ -205,13 +232,11 @@ function unmarkElementsStartingWith(letter) {
     elements.forEach((element) => element.classList.remove('marked'));
 }
 
-// controla o realce do grupo de repostas com a letra
-// digitada
-let markedLetter = '';
+
 
 function controlElementsMarking(inputValue) {
 
-    if (checkWordIsAnAnser(lastTyped) || inputValue.length == 0) {
+    if (checkWordIsAnAnser(lastTypedValue) || inputValue.length == 0) {
         unmarkElementsStartingWith(markedLetter);
         markedLetter = '';
         return
@@ -240,17 +265,13 @@ function controlElementsMarking(inputValue) {
 function scrollToElementOnAnswer(answer) {
     let id = getAnswerId(answer);
 
-    if(id){
+    if (id) {
         let td = document.getElementById('resposta-' + id).parentElement;
-        td.scrollIntoView({block: 'center'});
+        td.scrollIntoView({
+            block: 'center'
+        });
         console.log('scrolled to', td);
     }
 }
 
 console.log('UI CARREGADADA', getElementsStartingWith('c'));
-
-// usada para remover o loader e a div modal
-export default function disableWaiting() {
-    waitingDataDiv.style.display = 'none';
-    console.log('Disabling div')
-}

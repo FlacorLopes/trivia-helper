@@ -3,6 +3,11 @@ import disableWaiting from './UI.js';
 let id = location.pathname.split('/')[2];
 let data = undefined;
 
+export function isPlayableTrivia(){
+	console.log('chamou main')
+}
+
+
 function getJSON(){
 	$.getJSON(`https://rachacuca.com.br/trivia/data/${id}/`, (json) => {
 		data = json.data;
@@ -13,6 +18,7 @@ function getJSON(){
 		disableWaiting();
 }
 getJSON();
+
 
 export function getAnswerFromBase(base){
 	// em caso de resposta que incluam uma opcional (ex: abacate; avocado)

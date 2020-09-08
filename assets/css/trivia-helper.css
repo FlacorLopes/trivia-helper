@@ -30,7 +30,7 @@
 }
 
 #typing-info-span {
-	position: sticky;
+	display: block;
 	width: auto;
 	height: 10px;
 	margin-bottom: 10px;
@@ -40,7 +40,19 @@
 	font-family: 'Helvetica';
 	color: #0394fc;
 	text-align: center;
-	display: none;
+}
+
+#additional-info-span {
+	display: block;
+	width: auto;
+	height: 10px;
+	margin-top: 10px;
+	z-index: 100;
+	font-size: 12pt;
+	font-weight: bold;
+	font-family: 'Helvetica';
+	color: #0394fc;
+	text-align: center;
 }
 
 .loader {

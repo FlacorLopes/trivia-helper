@@ -2,9 +2,8 @@ import {
     getAnswerInfo,
     compareSpecialChars,
     checkWordIsAnAnser,
-    getAnswerId,
-    isPlayableTrivia
-    
+    getAnswerId
+
 } from './main.js';
 
 // ===== elementos globais da UI ==================== 
@@ -22,6 +21,8 @@ const typingInfoSpan = document.createElement('span');
 // input de respostas
 const formInput = document.getElementById('resposta');
 
+const additionalInfoSpan = document.createElement('span');
+
 // configura e exibe o loader
 function setUpLoader() {
     formInput.disabled = true;
@@ -29,14 +30,6 @@ function setUpLoader() {
     waitingDataDiv.setAttribute('id', 'waiting-data-div');
     waitingDataDiv.appendChild(loader);
     document.body.appendChild(waitingDataDiv);
-
-    
-}
-
-// usada para remover o loader e a div modal
-export default function disableWaiting() {
-    waitingDataDiv.style.display = 'none';
-    formInput.disabled = false;
 }
 
 // configura e exibe as spans de informações 
@@ -51,10 +44,18 @@ function setUpInfoSpans() {
     // localiza a div que contem o input e adiciona a span antes dele
     const typingInfoDiv = document.getElementById('respostas').firstElementChild;
     typingInfoDiv.insertBefore(typingInfoSpan, typingInfoDiv.childNodes[0]);
+
+    additionalInfoSpan.innerText = '';
+    additionalInfoSpan.setAttribute('id', 'additional-info-span');
+    typingInfoDiv.appendChild(additionalInfoSpan);
 }
 
-setUpLoader();
-setUpInfoSpans();
+// usada para remover o loader e a div modal
+export default function disableWaiting() {
+    waitingDataDiv.style.display = 'none';
+    formInput.disabled = false;
+}
+
 
 // == Variáveis globais de digitação ============================
 
@@ -104,7 +105,7 @@ function getAnswersElementsList() {
 
     if (tdList.length != 0) {
         for (let td of tdList) {
-            if (td.childElementCount != 0 && td.firstElementChild.toString().toLowerCase().includes('span'))
+            if (td.childElementCount != 0 && td.firstElementChild instanceof HTMLSpanElement)
                 answersElements.push(td);
         }
     }
@@ -121,8 +122,6 @@ function addMouseEvents() {
         el.parentElement.addEventListener('mouseout', () => hideAnswersInfoSpan(el));
     });
 }
-
-addMouseEvents();
 
 // chamada no keyup do formInput para exibir dados da palavra digitada
 function displayTypingWordsInfo() {
@@ -154,6 +153,18 @@ function displayTypingWordsInfo() {
     } else typingInfoSpan.innerText = typed.length + ' letras';
 }
 
+function displayAdditionalInfo(letter){
+    if(letter && letter.length === 1 && allElemensAreAnswered(letter))
+    {
+        additionalInfoSpan.style.display = 'block';
+        additionalInfoSpan.innerText = `já respondeu todos com a letra ${letter}!` ;
+    }
+    else {
+        additionalInfoSpan.style.display = 'none';
+        additionalInfoSpan.innerText = '';
+    }
+}
+
 function addTypingEvents() {
     formInput.addEventListener('keyup', ({
         target
@@ -164,10 +175,11 @@ function addTypingEvents() {
         lastTypedValue = target.value.trim() == '' ? lastTypedValue : target.value.trim();
         controlElementsMarking(target.value)
         scrollToElementOnAnswer(lastTypedValue);
+        displayAdditionalInfo(target.value[0]);
     });
 }
 
-addTypingEvents();
+
 
 function forceLowerCaseInput() {
     formInput.value = formInput.value.toLowerCase();
@@ -197,7 +209,6 @@ function setInputColor(color) {
     formInput.style.borderColor = color;
     formInput.style.color = color;
 }
-
 
 // retorna um array com as respostas atuais obtidas dos elementos
 // marcados com a classe 'resposta'
@@ -229,8 +240,6 @@ function unmarkElementsStartingWith(letter) {
     const elements = getElementsStartingWith(letter);
     elements.forEach((element) => element.classList.remove('marked'));
 }
-
-
 
 function controlElementsMarking(inputValue) {
 
@@ -268,8 +277,29 @@ function scrollToElementOnAnswer(answer) {
         td.scrollIntoView({
             block: 'center'
         });
-        console.log('scrolled to', td);
     }
 }
 
-console.log('UI CARREGADADA', getElementsStartingWith('c'));
+function allElemensAreAnswered(letter){
+    let allAnswered = true;
+    getElementsStartingWith(letter).forEach((element) => {
+        if(!element.firstChild.classList.contains('resposta'))
+        {
+            allAnswered = false;
+            return
+        }
+    });
+
+    return allAnswered;
+}
+
+
+
+function initUI() {
+    setUpLoader();
+    setUpInfoSpans();
+    addTypingEvents();
+    addMouseEvents();
+}
+
+initUI();

@@ -19,7 +19,7 @@
         "persistent": false
     },
     "content_scripts": [{
-        "matches": ["https://rachacuca.com.br/trivia/*"],
+        "matches": ["https://rachacuca.com.br/trivia/*/"],
         "js": ["module_loader.js"],
         "css": ["./assets/css/trivia-helper.css"]
     }],

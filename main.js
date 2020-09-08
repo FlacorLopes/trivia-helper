@@ -8,7 +8,6 @@ function getJSON(){
 	$.getJSON(`https://rachacuca.com.br/trivia/data/${id}/`, (json) => {
 		data = json.data;
 		disableWaiting();
-		console.log(data);
 	});
 	if(!id)
 		disableWaiting();
